@@ -61,7 +61,7 @@
         /// </returns>
         /// <remarks>
         /// This function will first attempt to extract the culture from the specified URL.
-        /// If the URL does not incdicate the culture, it will attemp to exract the
+        /// If the URL does not incdicate the culture, it will attempt to exract the
         /// culture from the current HTTP context items.
         /// </remarks>
         public static string GetCulture(string url)
