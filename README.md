@@ -11,7 +11,7 @@ Install with NuGet. Search for "Rhythm.Globalization.Core".
 
 # Overview
 
-The `UrlParsing` class has the following methods:
+## UrlParsing
 
 * **GetRegionFromUrl** Extracts a region (e.g., "us") from a URL (e.g., "/en-us/some-path").
 * **GetPathWithoutCulture** Gets a path portion (e.g., "/some-path") of a path with a culture (e.g., "/en-us/some-path"). Excludes the query string.
@@ -20,7 +20,7 @@ The `UrlParsing` class has the following methods:
 * **GetLanguageFromUrl** Extracts a language (e.g., "en") from a URL (e.g., "/en-us/some-path").
 * **PrefixCultureToUrl** Prefixes a culture (e.g., "en-us") to a URL (e.g., "/some-path") to form the full URL (e.g., "/en-us/some-path")
 
-The `GlobalizationHelper` class has the following methods:
+## GlobalizationHelper
 
 * **SetCultureForCurrentRequest** Sets the culture for the current request (can be useful in API methods in which the culture is not indicated by the incoming URL).
 * **GetCultureFromCurrentRequest** Returns the culture that was previously set on the current request.
