@@ -124,17 +124,20 @@
         /// <param name="url">
         /// The URL (e.g., "http://www.rhythmagency.com/en-us/some-path").
         /// </param>
+        /// <param name="useDefault">
+        /// Use the default culture as a fallback if a culture does not exist in the URL?
+        /// </param>
         /// <returns>
         /// The culture (e.g., "en-us").
         /// </returns>
         /// <remarks>
         /// The URL doesn't need to include the domain.
         /// </remarks>
-        public static string GetCultureFromUrl(string url)
+        public static string GetCultureFromUrl(string url, bool useDefault = true)
         {
             var path = RhythmUrlParsing.GetPathFromUrl(url);
             var culture = CultureRegex.Match(path)?.Value;
-            if (Settings.ShouldExcludeDefaultCultureFromUrl() && string.IsNullOrEmpty(culture))
+            if (useDefault && Settings.ShouldExcludeDefaultCultureFromUrl() && string.IsNullOrEmpty(culture))
             {
                 culture = Settings.GetDefaultCulture();
             }
