@@ -26,6 +26,10 @@
         /// </param>
         public static void SetCultureForCurrentRequest(string culture)
         {
+            if (Settings.ShouldExcludeDefaultCultureFromUrl() && string.IsNullOrEmpty(culture))
+            {
+                culture = Settings.GetDefaultCulture();
+            }
             var context = HttpContext.Current;
             var items = context.Items;
             items[CultureKey] = culture;
@@ -44,9 +48,14 @@
         {
             var context = HttpContext.Current;
             var items = context.Items;
-            return items.Contains(CultureKey)
+            var culture = items.Contains(CultureKey)
                 ? items[CultureKey] as string
                 : null;
+            if (Settings.ShouldExcludeDefaultCultureFromUrl() && string.IsNullOrEmpty(culture))
+            {
+                culture = Settings.GetDefaultCulture();
+            }
+            return culture;
         }
 
         /// <summary>
@@ -66,7 +75,12 @@
         /// </remarks>
         public static string GetCulture(string url)
         {
-            return UrlParsing.GetCultureFromUrl(url) ?? GetCultureFromCurrentRequest();
+            var culture = UrlParsing.GetCultureFromUrl(url) ?? GetCultureFromCurrentRequest();
+            if (Settings.ShouldExcludeDefaultCultureFromUrl() && string.IsNullOrEmpty(culture))
+            {
+                culture = Settings.GetDefaultCulture();
+            }
+            return culture;
         }
 
         #endregion

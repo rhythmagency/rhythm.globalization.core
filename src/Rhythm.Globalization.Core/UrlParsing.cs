@@ -66,6 +66,14 @@
         {
             var path = RhythmUrlParsing.GetPathFromUrl(url);
             var region = RegionRegex.Match(path)?.Value;
+            if (Settings.ShouldExcludeDefaultCultureFromUrl() && string.IsNullOrEmpty(region))
+            {
+                var culture = Settings.GetDefaultCulture();
+                if (!string.IsNullOrEmpty(culture) && culture.Length >= 2)
+                {
+                    region = culture.Substring(0, 2);
+                }
+            }
             var hasRegion = !string.IsNullOrWhiteSpace(region);
             return hasRegion
                 ? region.ToLower()
@@ -126,6 +134,10 @@
         {
             var path = RhythmUrlParsing.GetPathFromUrl(url);
             var culture = CultureRegex.Match(path)?.Value;
+            if (Settings.ShouldExcludeDefaultCultureFromUrl() && string.IsNullOrEmpty(culture))
+            {
+                culture = Settings.GetDefaultCulture();
+            }
             var hasCulture = !string.IsNullOrWhiteSpace(culture);
             return hasCulture
                 ? culture.ToLower()
