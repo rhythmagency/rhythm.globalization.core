@@ -56,19 +56,24 @@
         /// <param name="url">
         /// The URL (e.g., "http://www.rhythmagency.com/en-us/some-path").
         /// </param>
+        /// <param name="defaultCulture"></param>
+        /// <param name="shouldExcludeDefaultCultureFromUrl"></param>
         /// <returns>
         /// The region (e.g., "us").
         /// </returns>
         /// <remarks>
         /// The URL doesn't need to include the domain.
         /// </remarks>
-        public static string GetRegionFromUrl(string url)
+        public static string GetRegionFromUrl(
+            string url,
+            string defaultCulture,
+            bool shouldExcludeDefaultCultureFromUrl)
         {
             var path = RhythmUrlParsing.GetPathFromUrl(url);
             var region = RegionRegex.Match(path)?.Value;
-            if (Settings.ShouldExcludeDefaultCultureFromUrl() && string.IsNullOrEmpty(region))
+            if (shouldExcludeDefaultCultureFromUrl && string.IsNullOrEmpty(region))
             {
-                var culture = Settings.GetDefaultCulture();
+                var culture = defaultCulture;
                 if (!string.IsNullOrEmpty(culture) && culture.Length >= 2)
                 {
                     region = culture.Substring(0, 2);
@@ -124,6 +129,8 @@
         /// <param name="url">
         /// The URL (e.g., "http://www.rhythmagency.com/en-us/some-path").
         /// </param>
+        /// <param name="defaultCulture"></param>
+        /// <param name="shouldExcludeDefaultCultureFromUrl"></param>
         /// <param name="useDefault">
         /// Use the default culture as a fallback if a culture does not exist in the URL?
         /// </param>
@@ -133,13 +140,19 @@
         /// <remarks>
         /// The URL doesn't need to include the domain.
         /// </remarks>
-        public static string GetCultureFromUrl(string url, bool useDefault = true)
+        public static string GetCultureFromUrl(
+            string url, 
+            string defaultCulture,
+            bool shouldExcludeDefaultCultureFromUrl,
+            bool useDefault = true)
         {
             var path = RhythmUrlParsing.GetPathFromUrl(url);
             var culture = CultureRegex.Match(path)?.Value;
-            if (useDefault && Settings.ShouldExcludeDefaultCultureFromUrl() && string.IsNullOrEmpty(culture))
+            if (useDefault 
+                && shouldExcludeDefaultCultureFromUrl 
+                && string.IsNullOrEmpty(culture))
             {
-                culture = Settings.GetDefaultCulture();
+                culture = defaultCulture;
             }
             var hasCulture = !string.IsNullOrWhiteSpace(culture);
             return hasCulture
@@ -153,15 +166,22 @@
         /// <param name="url">
         /// The URL (e.g., "http://www.rhythmagency.com/en-us/some-path").
         /// </param>
+        /// <param name="defaultCulture"></param>
+        /// <param name="shouldExcludeDefaultCultureFromUrl"></param>
         /// <returns>
         /// The language (e.g., "en").
         /// </returns>
         /// <remarks>
         /// The URL doesn't need to include the domain.
         /// </remarks>
-        public static string GetLanguageFromUrl(string url)
+        public static string GetLanguageFromUrl(
+            string url,
+            string defaultCulture,
+            bool shouldExcludeDefaultCultureFromUrl)
         {
-            var culture = GetCultureFromUrl(url) ?? string.Empty;
+            var culture = GetCultureFromUrl(url, defaultCulture, shouldExcludeDefaultCultureFromUrl) 
+                ?? string.Empty;
+
             return culture.Length < 2
                 ? null
                 : culture.Substring(0, 2);

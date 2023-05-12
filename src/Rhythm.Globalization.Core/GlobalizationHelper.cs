@@ -1,8 +1,8 @@
-﻿namespace Rhythm.Globalization.Core
-{
+﻿using Microsoft.AspNetCore.Http;
+using System;
 
-    // Namespaces.
-    using System.Web;
+namespace Rhythm.Globalization.Core
+{
 
     /// <summary>
     /// Helps with globalizaton.
@@ -24,13 +24,41 @@
         /// <param name="culture">
         /// The culture to store.
         /// </param>
-        public static void SetCultureForCurrentRequest(string culture)
+        /// <param name="defaultCulture">
+        /// The fallback default culture.
+        /// </param>
+        /// <param name="shouldExcludeDefaultCultureFromUrl">
+        /// Should the default culture be excluded from the URL?
+        /// </param>
+        /// <param name="context">
+        /// The current HttpContext.
+        /// </param>
+        public static void SetCultureForCurrentRequest(
+            string culture, 
+            string defaultCulture,
+            bool shouldExcludeDefaultCultureFromUrl,
+            HttpContext context)
         {
-            if (Settings.ShouldExcludeDefaultCultureFromUrl() && string.IsNullOrEmpty(culture))
+            if (string.IsNullOrEmpty(culture))
             {
-                culture = Settings.GetDefaultCulture();
+                throw new ArgumentException($"'{nameof(culture)}' cannot be null or empty.", nameof(culture));
             }
-            var context = HttpContext.Current;
+
+            if (string.IsNullOrEmpty(defaultCulture))
+            {
+                throw new ArgumentException($"'{nameof(defaultCulture)}' cannot be null or empty.", nameof(defaultCulture));
+            }
+
+            if (shouldExcludeDefaultCultureFromUrl && string.IsNullOrEmpty(culture))
+            {
+                culture = defaultCulture;
+            }
+
+            if (context is null)
+            {
+                throw new ArgumentNullException(nameof(context));
+            }
+
             var items = context.Items;
             items[CultureKey] = culture;
         }
@@ -41,19 +69,30 @@
         /// <returns>
         /// The culture, or null.
         /// </returns>
+        /// <param name="defaultCulture">
+        /// The fallback default culture.
+        /// </param>
+        /// <param name="shouldExcludeDefaultCultureFromUrl">
+        /// Should the default culture be excluded from the URL?
+        /// </param>
+        /// <param name="context">
+        /// The current HttpContext.
+        /// </param>
         /// <remarks>
         /// This will not inspect the URL in the current HTTP request.
         /// </remarks>
-        public static string GetCultureFromCurrentRequest()
+        public static string GetCultureFromCurrentRequest(
+            bool shouldExcludeDefaultCultureFromUrl,
+            string defaultCulture,
+            HttpContext context)
         {
-            var context = HttpContext.Current;
             var items = context.Items;
-            var culture = items.Contains(CultureKey)
+            var culture = items.ContainsKey(CultureKey)
                 ? items[CultureKey] as string
                 : null;
-            if (Settings.ShouldExcludeDefaultCultureFromUrl() && string.IsNullOrEmpty(culture))
+            if (shouldExcludeDefaultCultureFromUrl && string.IsNullOrEmpty(culture))
             {
-                culture = Settings.GetDefaultCulture();
+                culture = defaultCulture;
             }
             return culture;
         }
@@ -65,6 +104,15 @@
         /// <param name="url">
         /// The URL to attempt to extract the culture from.
         /// </param>
+        /// <param name="defaultCulture">
+        /// The fallback default culture.
+        /// </param>
+        /// <param name="shouldExcludeDefaultCultureFromUrl">
+        /// Should the default culture be excluded from the URL?
+        /// </param>
+        /// <param name="context">
+        /// The current HttpContext.
+        /// </param>
         /// <returns>
         /// The culture (e.g., "es-mx").
         /// </returns>
@@ -73,12 +121,17 @@
         /// If the URL does not incdicate the culture, it will attempt to exract the
         /// culture from the current HTTP context items.
         /// </remarks>
-        public static string GetCulture(string url)
+        public static string GetCulture(
+            string url, 
+            string defaultCulture,
+            bool shouldExcludeDefaultCultureFromUrl,
+            HttpContext context)
         {
-            var culture = UrlParsing.GetCultureFromUrl(url) ?? GetCultureFromCurrentRequest();
-            if (Settings.ShouldExcludeDefaultCultureFromUrl() && string.IsNullOrEmpty(culture))
+            var culture = UrlParsing.GetCultureFromUrl(url, defaultCulture, shouldExcludeDefaultCultureFromUrl) 
+                ?? GetCultureFromCurrentRequest(shouldExcludeDefaultCultureFromUrl, defaultCulture, context);
+            if (shouldExcludeDefaultCultureFromUrl && string.IsNullOrEmpty(culture))
             {
-                culture = Settings.GetDefaultCulture();
+                culture = defaultCulture;
             }
             return culture;
         }
